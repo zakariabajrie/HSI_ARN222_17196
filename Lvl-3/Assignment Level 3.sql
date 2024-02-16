@@ -84,7 +84,9 @@ FOREIGN KEY(domisili) REFERENCES kota(id);
 
 -- 1C. tampilkan data nip, nama peserta, tempat lahir, tanggal lahir, dan domisili (saya limit 10)
 SELECT p.nip,
-       CONCAT(p.nama_depan, ' ', p.nama_belakang) AS 'Nama',
+       CONCAT(UPPER(LEFT(p.nama_depan, 1)), RIGHT(p.nama_depan, LENGTH(p.nama_depan)-1),
+              ' ',
+              UPPER(LEFT(p.nama_belakang, 1)), RIGHT(p.nama_belakang, LENGTH(p.nama_belakang)-1)) AS 'Nama',
        p.tempat_lahir,
        DATE_FORMAT(p.tanggal_lahir, "%d %M %Y") AS 'tanggal_lahir',
        k.nama_kota AS domisili
@@ -156,7 +158,10 @@ FROM (
     ) AS tna
 INNER JOIN (
     SELECT nip,
-           CONCAT(nama_depan, ' ', nama_belakang) AS nama_peserta,
+           CONCAT(UPPER(LEFT(nama_depan, 1)), RIGHT(nama_depan, LENGTH(nama_depan)-1),
+                  ' ', 
+                  UPPER(LEFT(nama_belakang, 1)), RIGHT(nama_belakang, LENGTH(nama_belakang)-1))
+                  AS nama_peserta,
            YEAR(NOW()) - YEAR(tanggal_lahir) AS umur_peserta
     FROM peserta    
     ) AS tp
