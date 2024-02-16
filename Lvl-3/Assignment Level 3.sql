@@ -113,7 +113,9 @@ SET grup = MID(nip, 8, 2),
 
 -- cek setelah update
 SELECT nip,
-       CONCAT(nama_depan, ' ', nama_belakang) AS nama,
+       CONCAT(UPPER(LEFT(nama_depan, 1)), RIGHT(nama_depan, LENGTH(nama_depan)-1),
+              ' ',
+              UPPER(LEFT(nama_belakang, 1)), RIGHT(nama_belakang, LENGTH(nama_belakang)-1)) AS nama,
        angkatan,
        grup
 FROM peserta;
@@ -132,11 +134,11 @@ SELECT tp.nip,
        tna.nilai_akhir,
        (CASE 
         WHEN tna.nilai_akhir = 100 THEN "Mumtaz Murtafi"
-        WHEN tna.nilai_akhir < 100 && tna.nilai_akhir >=91 THEN "Mumtaz"
-        WHEN tna.nilai_akhir < 91 && tna.nilai_akhir >=76 THEN "Jayyid Jiddan"
-        WHEN tna.nilai_akhir < 76 && tna.nilai_akhir >=61 THEN "Jayyid"
-        WHEN tna.nilai_akhir < 61 && tna.nilai_akhir >=51 THEN "Maqbul"
-        WHEN tna.nilai_akhir < 51 && tna.nilai_akhir >=0 THEN "Rasib"
+        WHEN tna.nilai_akhir >=91 THEN "Mumtaz"
+        WHEN tna.nilai_akhir >=76 THEN "Jayyid Jiddan"
+        WHEN tna.nilai_akhir >=61 THEN "Jayyid"
+        WHEN tna.nilai_akhir >=51 THEN "Maqbul"
+        ELSE "Rasib"
        END) AS "Predikat"
 FROM (
     SELECT tn.nip,
