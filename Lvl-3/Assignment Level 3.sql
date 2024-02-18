@@ -126,36 +126,29 @@ FROM peserta;
 
 -- catatan
 -- n_je = nilai per jenis evaluasi
--- tn   = table nilai
 -- tna  = table nilai akhir
 -- tp   = table peserta
 
 SELECT tp.nip,
        tp.nama_peserta,
        tp.umur_peserta,
-       tna.nilai_akhir,
+       ROUND(SUM(tna.n_je)/100, 2) AS nilai_akhir,
        (CASE 
-        WHEN tna.nilai_akhir = 100 THEN "Mumtaz Murtafi"
-        WHEN tna.nilai_akhir >=91 THEN "Mumtaz"
-        WHEN tna.nilai_akhir >=76 THEN "Jayyid Jiddan"
-        WHEN tna.nilai_akhir >=61 THEN "Jayyid"
-        WHEN tna.nilai_akhir >=51 THEN "Maqbul"
+        WHEN SUM(tna.n_je)/100 = 100 THEN "Mumtaz Murtafi"
+        WHEN SUM(tna.n_je)/100 >=91 THEN "Mumtaz"
+        WHEN SUM(tna.n_je)/100 >=76 THEN "Jayyid Jiddan"
+        WHEN SUM(tna.n_je)/100 >=61 THEN "Jayyid"
+        WHEN SUM(tna.n_je)/100 >=51 THEN "Maqbul"
         ELSE "Rasib"
        END) AS "Predikat"
 FROM (
-    SELECT tn.nip,
-           ROUND(SUM(tn.n_je)/100, 2) AS nilai_akhir
-    FROM (
-        SELECT nip,
-               jenis_evaluasi,
-               AVG(np.nilai)*re.bobot AS n_je
-        FROM nilai_peserta AS np
-        INNER JOIN ref_evaluasi AS re
-        ON np.jenis_evaluasi = re.kode
-        GROUP BY np.nip, np.jenis_evaluasi
-        ) as tn
-    GROUP BY tn.nip
-    ) AS tna
+    SELECT nip,
+           jenis_evaluasi,
+           AVG(np.nilai)*re.bobot AS n_je
+    FROM nilai_peserta AS np
+    INNER JOIN ref_evaluasi AS re
+    ON np.jenis_evaluasi = re.kode
+    GROUP BY np.nip, np.jenis_evaluasi ) as tna
 INNER JOIN (
     SELECT nip,
            CONCAT(UPPER(LEFT(nama_depan, 1)), RIGHT(nama_depan, LENGTH(nama_depan)-1),
@@ -166,11 +159,6 @@ INNER JOIN (
     FROM peserta    
     ) AS tp
 ON tna.nip = tp.nip
-ORDER BY tna.nilai_akhir DESC
+GROUP BY tna.nip
+ORDER BY nilai_akhir DESC
 LIMIT 5;
-
--- cara membaca query
--- 1. line 17 – 23 untuk menentukan rata-rata tiap jenis evaluasi lalu dikalikan dengan bobotnya dan dialiaskan dengan tn (table nilai)
--- 2. line 14 – 26 untuk mengelompokkan tiap jenis evaluasi berdasarkan nip-nya menggunakan sub-query dan dialiaskan dengan tna (table nilali akhir)
--- 3. line 28 – 31 untuk membuat tabel peserta baru, yang akan di-join kan dengan tna (table nilai akhir)
--- 4. line 1 – 35 inner join tna (table nilai akhir) dengan tp (table peserta) untuk menghasilkan ketentuan yang diinginkan soal
